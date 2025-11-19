@@ -1,1 +1,14 @@
 **/results/*_log.txt
+
+**/__pycache__/
+
+# ignore config file itself, but leave config template to track
+/src/config.toml
+
+# uv stuff, provide requirements.txt for reproduction
+/pyproject.toml
+/uv.lock
+/.venv
+
+# IDE stuff
+/.idea

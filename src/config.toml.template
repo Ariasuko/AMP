@@ -1,0 +1,19 @@
+[SERVER]
+USERNAME = "ubuntu"
+PRIVATE_KEY_PATH = "~/.ssh/id_rsa"
+
+# format [intra-node , inter-node ] Gbps , and
+# one's bandwidth can be considered as the one with the smallest bandwidth between gpu/nodes.
+# ensure bandwidth information match the order in the hostfile.
+BANDWIDTH = [
+    [50,50],
+    [50,50],
+    [50,50],
+    [50,50],
+]
+
+[AMP]
+GLOBAL_BS = 32
+GPU_PER_NODE = 4
+NUMBER_OF_NODES = 4
+MAIN_LOGS_PATH = "~/amp_main_logs"
