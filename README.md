@@ -1,3 +1,59 @@
+## This repo is forked in order to reproduce in servers other than AWS with/without using AMI ID.
+
+original repo is [here](https://github.com/DachengLi1/AMP).
+
+## Main modifications
+
+### all-in-one.py to run
+
+Using src/all-in-one.py, you can run experiment 1-3 with option `--experiment [1,2,3]`, along with original options `--full` and `-budget X`.
+This script will handle different parameters each experiment requires, and keep modified code(e.g. how to represent in log.txt) the same across all experiments.
+
+### config.toml & de-hardcoding parameters
+
+One problem I have encountered during reproduction is that username, private key pate, path of log folder and so on, are not always the same as the script expected if you choose to use servers other than AWS.
+
+In this case, along with all-in-one.py mentioned above, I make `src/config.toml` and `src/amp_config.py` for the convenience, and moves hardcoded parameters as many as I can to config.toml.(except `vocab.json` path and so on in `DeepSpeed/DeepSpeedExamples/Megatron-LM-v1.1.5-3D_parallelism/examples/ds_pretrain_gpt2_pipe.sh`)
+
+However, there are a few points here you may take note of:
+
+* First of all, you may need to rename `src/config.toml.template` to `config.toml` before using `all-in-one.py`.
+* The original scripts(homogeneous.py, het-cluster.py and het-model.py) won't make use of config.toml since I have not modified them.
+* All parameters are kept the original except `GLOBAL_BS`(32 for exp 1&2, 64 for 3), in case you'd like to use AWS and AMI ID.
+* It is not guaranteed that changes to `GPU_PER_NODE` will take effect, as it seems this parameter is hardcoded into dependency Megatron-Deepspeed.
+
+### re-factor class AMP
+
+There is a guess that the original idea is to use AI or somewhat as class AMP that solves partition problem inherits `torch.nn.Module` without truly using Neural Network training or inference stuff.
+
+Anyway, there is no need to do so if not use it, so I remove the inheritance, which results in that predict step of experiment 1 takes around 300s now(500s before).
+
+## Modifications still under working
+
+There are still some things I would like to do ,if I'm not too drained by then...
+
+### figure out wheel version
+
+Another problem is that nowadays, many methods that package provided are different, or incompatible with newer version.
+However, package info original repo mentioned is not comprehensive enough if choose to set up.
+
+Following the instruction provided below will still result in unsatisfied requirements and some workarounds(e.g. modify site-packages' code) are needed, which I think it's not elegant.
+
+In short, determine if it's possible to run the script using the newer version with as few workarounds as possible. Eventually, try to provide a full `requirements.txt` or file.
+
+### switch backend engine
+
+"Backend engine"(or "frame") here refers to the Megatron-Deepspeed([original repo for reference](https://github.com/deepspeedai/DeepSpeedExamples/tree/20ea07a2a069696abec212e25476a9bf76aced70/Megatron-LM-v1.1.5-3D_parallelism)), which enables 3D-parallel training.
+
+At the time of writing this paper, it was the perfect choice, but there are better options now. Colossal-AI and Megatron-LM can now do 3D parallel training. Furthermore, the Megatron-LM itself can now specify how each stage is assigned to each GPU without making many modifications to the package code.
+
+So, it is considerable to make an adapter to make use of whatever backend engine you prefer.
+
+
+## Below is original README.md of repo. Note that since having modified the both the code and engine that the code uses, there is no guarantee that result will remain exact the same that mentioned in paper.
+
+---
+
 # AMP: Automatically Finding Model Parallel Strategies with Heterogeneity Awareness (NeurIPS 2022) 
 [**Paper**](https://arxiv.org/pdf/2210.07297.pdf) | 
 [**Usage**](#usage) |
