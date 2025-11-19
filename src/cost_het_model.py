@@ -8,7 +8,6 @@ import sys
 import os
 
 import torch
-import torch.nn as nn
 import numpy as np
 
 from amp_utils import rank2axis, axis2rank, get_host
@@ -20,7 +19,7 @@ example_path = os.path.join(workdir_path, "examples")
 sys.path.append(workdir_path)
 sys.path.append(example_path)
 
-class AMP(nn.Module):
+class AMP:
     def __init__(self, model_config, exp_name):
         
         super().__init__()
@@ -46,7 +45,7 @@ class AMP(nn.Module):
             self.profile_cost[str(mp_size)] = cur_profile_cost
             #print(f"using exec cost with mp_size {mp_size}: {cur_profile_cost}")
         
-    def forward(self, args):
+    def __call__(self, args):
         model_type = self.model_type
         config, bs, micro_bs, cluster_info, model_config, oth = args
         amp_config = {"profile_cost" : self.profile_cost}
